@@ -7,7 +7,6 @@ import { User } from "@/types/user";
 import { Button, Form, Input } from "antd";
 
 interface FormFieldProps {
-  name: string;
   username: string;
   password: string;
   bio: string;
@@ -51,13 +50,6 @@ const Register: React.FC = () => {
         onFinish={handleRegister}
         layout="vertical"
       >
-        <Form.Item
-          name="name"
-          label="Display Name"
-          rules={[{ required: true, message: "Please input your display name!" }]}
-        >
-          <Input placeholder="Enter your display name" />
-        </Form.Item>
         <Form.Item
           name="username"
           label="Username"

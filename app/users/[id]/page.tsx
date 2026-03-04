@@ -71,8 +71,7 @@ const Profile: React.FC = () => {
       >
         {user && (
           <>
-            <Descriptions column={1} bordered>
-              <Descriptions.Item label="Display Name">{user.name}</Descriptions.Item>
+            <Descriptions column={1} bordered labelStyle={{color: "blue"}}>
               <Descriptions.Item label="Username">{user.username}</Descriptions.Item>
               <Descriptions.Item label="Status">{user.status}</Descriptions.Item>
               <Descriptions.Item label="Bio">{user.bio ?? "—"}</Descriptions.Item>
