@@ -7,20 +7,22 @@ import { User } from "@/types/user";
 import { Button, Form, Input } from "antd";
 
 interface FormFieldProps {
+  name: string;
   username: string;
   password: string;
+  bio: string;
 }
 
-const Login: React.FC = () => {
+const Register: React.FC = () => {
   const router = useRouter();
   const apiService = useApi();
   const [form] = Form.useForm();
   const { set: setToken } = useLocalStorage<string>("token", "");
   const { set: setUserId } = useLocalStorage<string>("userId", "");
 
-  const handleLogin = async (values: FormFieldProps) => {
+  const handleRegister = async (values: FormFieldProps) => {
     try {
-      const response = await apiService.post<User>("/login", values);
+      const response = await apiService.post<User>("/users", values);
 
       if (response.token) {
         setToken(response.token);
@@ -32,9 +34,9 @@ const Login: React.FC = () => {
       router.push(`/users/${response.id}`);
     } catch (error) {
       if (error instanceof Error) {
-        alert(`Login failed:\n${error.message}`);
+        alert(`Registration failed:\n${error.message}`);
       } else {
-        console.error("An unknown error occurred during login.");
+        console.error("An unknown error occurred during registration.");
       }
     }
   };
@@ -43,34 +45,47 @@ const Login: React.FC = () => {
     <div className="login-container">
       <Form
         form={form}
-        name="login"
+        name="register"
         size="large"
         variant="outlined"
-        onFinish={handleLogin}
+        onFinish={handleRegister}
         layout="vertical"
       >
         <Form.Item
+          name="name"
+          label="Display Name"
+          rules={[{ required: true, message: "Please input your display name!" }]}
+        >
+          <Input placeholder="Enter your display name" />
+        </Form.Item>
+        <Form.Item
           name="username"
           label="Username"
-          rules={[{ required: true, message: "Please input your username!" }]}
+          rules={[{ required: true, message: "Please input a username!" }]}
         >
           <Input placeholder="Enter username" />
         </Form.Item>
         <Form.Item
           name="password"
           label="Password"
-          rules={[{ required: true, message: "Please input your password!" }]}
+          rules={[{ required: true, message: "Please input a password!" }]}
         >
           <Input.Password placeholder="Enter password" />
         </Form.Item>
+        <Form.Item
+          name="bio"
+          label="Bio"
+        >
+          <Input.TextArea placeholder="Tell us a bit about yourself (optional)" rows={3} />
+        </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit" className="login-button">
-            Login
+            Register
           </Button>
         </Form.Item>
         <Form.Item>
-          <Button type="link" onClick={() => router.push("/register")} style={{ padding: 0 }}>
-            No account yet? Register here
+          <Button type="link" onClick={() => router.push("/login")} style={{ padding: 0 }}>
+            Already have an account? Login here
           </Button>
         </Form.Item>
       </Form>
@@ -78,4 +93,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login;
+export default Register;
