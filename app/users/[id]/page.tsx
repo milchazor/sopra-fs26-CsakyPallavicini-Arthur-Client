@@ -13,8 +13,19 @@ const Profile: React.FC = () => {
   const router = useRouter();
   const apiService = useApi();
   const [user, setUser] = useState<User | null>(null);
-  const { clear: clearToken } = useLocalStorage<string>("token", "");
+  const { value: token, clear: clearToken } = useLocalStorage<string>("token", "");
   const { value: userId, clear: clearUserId } = useLocalStorage<string>("userId", "");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && !token) {
+      router.push("/login");
+    }
+  }, [mounted, token, router]);
 
   const handleLogout = async (): Promise<void> => {
     try {
