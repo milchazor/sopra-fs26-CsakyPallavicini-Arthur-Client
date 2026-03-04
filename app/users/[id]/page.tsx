@@ -5,7 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { User } from "@/types/user";
-import { Button, Card, Descriptions } from "antd";
+import { Button, Card, Descriptions, Input, Modal } from "antd";
+import { getApiDomain } from "@/utils/domain";
 
 const Profile: React.FC = () => {
   const params = useParams();
@@ -16,6 +17,8 @@ const Profile: React.FC = () => {
   const { value: token, clear: clearToken } = useLocalStorage<string>("token", "");
   const { value: userId, clear: clearUserId } = useLocalStorage<string>("userId", "");
   const [mounted, setMounted] = useState(false);
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
 
   useEffect(() => {
     setMounted(true);
@@ -26,6 +29,23 @@ const Profile: React.FC = () => {
       router.push("/login");
     }
   }, [mounted, token, router]);
+
+  const handlePasswordChange = async (): Promise<void> => {
+    try {
+      await fetch(`${getApiDomain()}/users/${id}/password`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", "Authorization": token ?? "" },
+        body: JSON.stringify({ password: newPassword }),
+      }).then((res) => { if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`); });
+      setPasswordModalOpen(false);
+      setNewPassword("");
+      await handleLogout();
+    } catch (error) {
+      if (error instanceof Error) {
+        alert(`Failed to change password:\n${error.message}`);
+      }
+    }
+  };
 
   const handleLogout = async (): Promise<void> => {
     try {
@@ -81,15 +101,29 @@ const Profile: React.FC = () => {
                   : "—"}
               </Descriptions.Item>
             </Descriptions>
-            {userId === id && (
-              <Button
-                type="primary"
-                onClick={handleLogout}
-                style={{ marginTop: 16 }}
-              >
-                Logout
-              </Button>
+            {String(userId) === String(id) && (
+              <div style={{ marginTop: 16, display: "flex", gap: 8 }}>
+                <Button onClick={() => setPasswordModalOpen(true)}>
+                  Edit Password
+                </Button>
+                <Button type="primary" onClick={handleLogout}>
+                  Logout
+                </Button>
+              </div>
             )}
+            <Modal
+              title="Change Password"
+              open={passwordModalOpen}
+              onOk={handlePasswordChange}
+              onCancel={() => { setPasswordModalOpen(false); setNewPassword(""); }}
+              okText="Save"
+            >
+              <Input.Password
+                placeholder="New password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+              />
+            </Modal>
           </>
         )}
       </Card>
